@@ -1,0 +1,26 @@
+name: Auto sync from jhk5263/edgetunnel
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # 每6小时自动同步
+  workflow_dispatch:        # 支持手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge upstream main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/jhk5263/edgetunnel.git
+          git fetch upstream main
+          git merge upstream/main --no-edit || git merge --abort
+          git push origin main
